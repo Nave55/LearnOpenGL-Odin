@@ -147,10 +147,10 @@ createTriangle :: proc() -> (VBO, VAO: u32) {
 // creates rect
 createRect :: proc() -> (VBO, VAO, EBO: u32) {
     vertices := [?]f32{
-		0.5, 0.5, 0.0,
-		0.5, -0.5, 0.0,
+	0.5, 0.5, 0.0,
+	0.5, -0.5, 0.0,
         -0.5, -0.5, 0.0,
-		-0.5, 0.5, 0.0,
+	-0.5, 0.5, 0.0,
     }
 
     indices := [?]u32{
@@ -181,7 +181,7 @@ createRect :: proc() -> (VBO, VAO, EBO: u32) {
 //excercise part one
 exerciseOne :: proc() -> (VBO, VAO: u32) {
     vertices := [?]f32{
-		-0.9, -0.5, 0.0,  // left 
+	-0.9, -0.5, 0.0,  // left 
         -0.0, -0.5, 0.0,  // right
         -0.45, 0.5, 0.0,  // top 
         // second triangle
