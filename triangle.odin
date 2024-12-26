@@ -42,10 +42,10 @@ main :: proc() {
     // rect
     VAO, VBO, EBO := createRect()
     defer {
-		gl.DeleteVertexArrays(1, &VAO)
-		gl.DeleteBuffers(1, &VBO)
+	gl.DeleteVertexArrays(1, &VAO)
+	gl.DeleteBuffers(1, &VBO)
         gl.DeleteBuffers(1, &EBO)
-		gl.DeleteProgram(shaderProgram)
+	gl.DeleteProgram(shaderProgram)
 	}
 
 	for !glfw.WindowShouldClose(window) {
