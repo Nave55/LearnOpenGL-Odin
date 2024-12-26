@@ -1,4 +1,4 @@
-package glfw_window
+package triangle
 
 import "core:fmt"
 import "vendor:glfw"
@@ -7,21 +7,22 @@ import gl "vendor:OpenGL"
 
 WIDTH  	:: 800
 HEIGHT 	:: 600
-TITLE 	:: "My Window!"
+TITLE 	:: "Triangle"
 GL_MAJOR_VERSION :: 4
 GL_MINOR_VERSION :: 5
 window: glfw.WindowHandle
 shaderProgram: u32
 
 main :: proc() {
-	initWindow()
-	defer glfw.Terminate()
-	defer glfw.DestroyWindow(window)
-	glfw.SetFramebufferSizeCallback(window, framebuffer_size_callback)
+	initWindow() // create window handle
+	defer glfw.Terminate() // terminate glfw
+	defer glfw.DestroyWindow(window) // destroy window handle
+	glfw.SetFramebufferSizeCallback(window, framebuffer_size_callback) // for window resize
 
-    program()
+    // program(1) // orange fragment shader
+    program(2) // yellow fragment shader
 
-    //
+    // exercise one and base triangle
     // VAO, VBO := exerciseOne()
     // VAO, VBO := createTriangle()
     // defer {
@@ -29,35 +30,38 @@ main :: proc() {
 	// 	gl.DeleteBuffers(1, &VBO)
 	// 	gl.DeleteProgram(shaderProgram)
 	// }
-
-    VAOs, VBOs := exerciseTwo()
-    defer {
-		gl.DeleteVertexArrays(2, raw_data(VAOs[:]))
-		gl.DeleteBuffers(2, raw_data(VBOs[:]))
-		gl.DeleteProgram(shaderProgram)
-	}
-
-    // VAO, VBO, EBO := createRect()
+    
+    // exercise two
+    // VAOs, VBOs := exerciseTwo()
     // defer {
-	// 	gl.DeleteVertexArrays(1, &VAO)
-	// 	gl.DeleteBuffers(1, &VBO)
-    //     gl.DeleteBuffers(1, &EBO)
+	// 	gl.DeleteVertexArrays(2, raw_data(VAOs[:]))
+	// 	gl.DeleteBuffers(2, raw_data(VBOs[:]))
 	// 	gl.DeleteProgram(shaderProgram)
 	// }
 
+    // rect
+    VAO, VBO, EBO := createRect()
+    defer {
+		gl.DeleteVertexArrays(1, &VAO)
+		gl.DeleteBuffers(1, &VBO)
+        gl.DeleteBuffers(1, &EBO)
+		gl.DeleteProgram(shaderProgram)
+	}
+
 	for !glfw.WindowShouldClose(window) {
-        processInput()
+        processInput() // check if pressed escape
         gl.ClearColor(0.2, 0.3, 0.3, 1.0)
         gl.Clear(gl.COLOR_BUFFER_BIT)
-        // runProgram(VAO, VBO, "base")
-        // runProgram(VAO, VBO, EBO)
-        // runProgram(VAO, VBO, "one")
-        runProgram(VAOs[:], VBOs[:])
+        // runProgram(VAO, VBO, "base") // base triangle
+        runProgram(VAO, VBO, EBO) // base rect
+        // runProgram(VAO, VBO, "one") // exercise one
+        // runProgram(VAOs[:], VBOs[:]) // exercise two
         glfw.SwapBuffers(window)
         glfw.PollEvents()
     }
 }
 
+// creates window
 initWindow :: proc() {
 	if !bool(glfw.Init()) {
 		fmt.eprintln("GLFW has failed to load.")
@@ -75,24 +79,36 @@ initWindow :: proc() {
 	gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
 }
 
+// close window if you hit escape
 processInput :: proc() {
 	if (glfw.GetKey(window, glfw.KEY_ESCAPE) == glfw.PRESS) do glfw.SetWindowShouldClose(window, true)
 }
 
+// call back if window resize
 framebuffer_size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
 	gl.Viewport(0, 0, width, height)
 }
 
-program :: proc() {
+// creates shader program
+program :: proc(prog: u8) {
     vertexShader := gl.CreateShader(gl.VERTEX_SHADER)
     gl.ShaderSource(vertexShader, 1, &vertex_shader_source, nil)
     gl.CompileShader(vertexShader)
     checkCompileErrors(vertexShader, "VERTEX")
 
-    fragmentShader := gl.CreateShader(gl.FRAGMENT_SHADER)
-    gl.ShaderSource(fragmentShader, 1, &fragment_shader_source, nil)
-    gl.CompileShader(fragmentShader)
-    checkCompileErrors(fragmentShader, "FRAGMENT")
+    fragmentShader: u32
+    if prog == 1 {
+        fragmentShader = gl.CreateShader(gl.FRAGMENT_SHADER)
+        gl.ShaderSource(fragmentShader, 1, &fragment_shader_source, nil)
+        gl.CompileShader(fragmentShader)
+        checkCompileErrors(fragmentShader, "FRAGMENT")
+    }
+    if prog == 2 {
+        fragmentShader = gl.CreateShader(gl.FRAGMENT_SHADER)
+        gl.ShaderSource(fragmentShader, 1, &fragment_shader_source2, nil)
+        gl.CompileShader(fragmentShader)
+        checkCompileErrors(fragmentShader, "FRAGMENT")
+    }
 
     shaderProgram = gl.CreateProgram()
     gl.AttachShader(shaderProgram, vertexShader)
@@ -104,6 +120,7 @@ program :: proc() {
     gl.DeleteShader(fragmentShader)
 }
 
+// creates triangle
 createTriangle :: proc() -> (VBO, VAO: u32) {
     vertices := [9]f32{
 		-0.5, -0.5, 0.0,
@@ -127,6 +144,7 @@ createTriangle :: proc() -> (VBO, VAO: u32) {
     return
 }
 
+// creates rect
 createRect :: proc() -> (VBO, VAO, EBO: u32) {
     vertices := [?]f32{
 		0.5, 0.5, 0.0,
@@ -160,6 +178,7 @@ createRect :: proc() -> (VBO, VAO, EBO: u32) {
     return
 }
 
+//excercise part one
 exerciseOne :: proc() -> (VBO, VAO: u32) {
     vertices := [?]f32{
 		-0.9, -0.5, 0.0,  // left 
@@ -187,6 +206,7 @@ exerciseOne :: proc() -> (VBO, VAO: u32) {
     return 
 }
 
+// exercise part two
 exerciseTwo :: proc() -> (VBOs, VAOs: [2]u32) {
     firstTriangle := [9]f32{
         -0.9, -0.5, 0.0,  // left 
@@ -218,6 +238,7 @@ exerciseTwo :: proc() -> (VBOs, VAOs: [2]u32) {
     return 
 }
 
+// runs program if base triangle or exercise part one
 runBaseOne :: proc(VAO, VBO: u32, part: string) {
     if part == "base" {
         gl.UseProgram(shaderProgram)  
@@ -232,6 +253,7 @@ runBaseOne :: proc(VAO, VBO: u32, part: string) {
     }
 }
 
+// runs exercise two 
 runExerciseTwo :: proc(VBOs, VAOs: []u32) {
     gl.UseProgram(shaderProgram);
     // draw first triangle using the data from the first VAO
@@ -243,18 +265,21 @@ runExerciseTwo :: proc(VBOs, VAOs: []u32) {
 
 }
 
+// runs rect program
 runRect :: proc(VAO, VBO, EBO: u32) {
     gl.UseProgram(shaderProgram)  
     gl.BindVertexArray(VAO)
     gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, rawptr(uintptr(0)))
 }
 
+// overload for all my run functions
 runProgram :: proc {
     runBaseOne,
     runExerciseTwo,
     runRect,
 }
 
+// checks for compile errors
 checkCompileErrors :: proc(obj: u32, type: string) {
     success: i32
     infoLog: [1024]byte
@@ -273,6 +298,7 @@ checkCompileErrors :: proc(obj: u32, type: string) {
     }
 }
 
+// vertex shader
 vertex_shader_source: cstring = `#version 330 core
 
     layout (location = 0) in vec3 aPos;
@@ -282,6 +308,7 @@ vertex_shader_source: cstring = `#version 330 core
        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
     }`
 
+// orange fragment shader
 fragment_shader_source: cstring = `#version 330 core
 
     out vec4 FragColor;
@@ -290,3 +317,13 @@ fragment_shader_source: cstring = `#version 330 core
     {
        FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
     }`
+
+// yellow fragment shader
+fragment_shader_source2: cstring = `#version 330 core
+
+    out vec4 FragColor;
+
+    void main()
+    {
+       FragColor = vec4(1.0f, 0.984f, 0.0f, 1.0f);
+    }`    
