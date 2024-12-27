@@ -18,7 +18,13 @@ main :: proc() {
 	defer glfw.DestroyWindow(window)
 	glfw.SetFramebufferSizeCallback(window, framebuffer_size_callback)
 
-	for !glfw.WindowShouldClose(window) do gameLoop()
+	for !glfw.WindowShouldClose(window) {
+		processInput()
+		gl.ClearColor(0.2, 0.3, 0.3, 1.0)
+		gl.Clear(gl.COLOR_BUFFER_BIT)
+		glfw.SwapBuffers(window)
+		glfw.PollEvents()
+	}
 }
 
 initWindow :: proc() {
@@ -44,12 +50,4 @@ processInput :: proc() {
 
 framebuffer_size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
 	gl.Viewport(0, 0, width, height)
-}
-
-gameLoop :: proc() {
-	processInput()
-	gl.ClearColor(0.2, 0.3, 0.3, 1.0)
-	gl.Clear(gl.COLOR_BUFFER_BIT)
-	glfw.SwapBuffers(window)
-	glfw.PollEvents()
 }
