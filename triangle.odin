@@ -55,7 +55,7 @@ main :: proc() {
 	defer {
 		gl.DeleteVertexArrays(1, &VAO)
 		gl.DeleteBuffers(1, &VBO)
-	gl.DeleteBuffers(1, &EBO)
+		gl.DeleteBuffers(1, &EBO)
 		gl.DeleteProgram(shaderProgram)
 	}
 	
