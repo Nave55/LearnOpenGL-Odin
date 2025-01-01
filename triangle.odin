@@ -21,7 +21,7 @@ WindowError :: enum {
 
 main :: proc() {
 	err := initWindow() // create window handle
-    if err != .None do return; // return if theres is an error with the window handle
+	if err != .None do return; // return if theres is an error with the window handle
 
 	defer glfw.Terminate() // terminate glfw
 	defer glfw.DestroyWindow(window) // destroy window handle
