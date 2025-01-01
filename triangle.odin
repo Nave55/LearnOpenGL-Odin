@@ -27,48 +27,48 @@ main :: proc() {
 	defer glfw.DestroyWindow(window) // destroy window handle
 	glfw.SetFramebufferSizeCallback(window, framebuffer_size_callback) // for window resize
 
-    // program(1) // orange fragment shader
-    program(2) // yellow fragment shader
+	// program(1) // orange fragment shader
+	program(2) // yellow fragment shader
 
-    // exercise one and base triangle
+	// exercise one and base triangle
 
-    // VAO, VBO := exerciseOne()
-    // VAO, VBO := createTriangle()
-    // defer {
+	// VAO, VBO := exerciseOne()
+	// VAO, VBO := createTriangle()
+	// defer {
 	// 	gl.DeleteVertexArrays(1, &VAO)
 	// 	gl.DeleteBuffers(1, &VBO)
 	// 	gl.DeleteProgram(shaderProgram)
 	// }
-    
-    // exercise two
-
-    // VAOs, VBOs := exerciseTwo()
-    // defer {
+	
+	// exercise two
+	
+	// VAOs, VBOs := exerciseTwo()
+	// defer {
 	// 	gl.DeleteVertexArrays(2, raw_data(VAOs[:]))
 	// 	gl.DeleteBuffers(2, raw_data(VBOs[:]))
 	// 	gl.DeleteProgram(shaderProgram)
 	// }
-
-    // rect
-    
-    VAO, VBO, EBO := createRect()
-    defer {
+	
+	// rect
+	
+	VAO, VBO, EBO := createRect()
+	defer {
 		gl.DeleteVertexArrays(1, &VAO)
 		gl.DeleteBuffers(1, &VBO)
-        gl.DeleteBuffers(1, &EBO)
+	gl.DeleteBuffers(1, &EBO)
 		gl.DeleteProgram(shaderProgram)
 	}
-
+	
 	for !glfw.WindowShouldClose(window) {
-        processInput() // check if pressed escape
-        gl.ClearColor(0.2, 0.3, 0.3, 1.0)
-        gl.Clear(gl.COLOR_BUFFER_BIT)
-        // runProgram(VAO, VBO, "base") // base triangle
-        runProgram(VAO, VBO, EBO) // base rect
-        // runProgram(VAO, VBO, "one") // exercise one
-        // runProgram(VAOs[:], VBOs[:]) // exercise two
-        glfw.SwapBuffers(window)
-        glfw.PollEvents()
+	        processInput() // check if pressed escape
+	        gl.ClearColor(0.2, 0.3, 0.3, 1.0)
+	        gl.Clear(gl.COLOR_BUFFER_BIT)
+	        // runProgram(VAO, VBO, "base") // base triangle
+	        runProgram(VAO, VBO, EBO) // base rect
+	        // runProgram(VAO, VBO, "one") // exercise one
+	        // runProgram(VAOs[:], VBOs[:]) // exercise two
+	        glfw.SwapBuffers(window)
+	        glfw.PollEvents()
     }
 }
 
