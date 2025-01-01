@@ -12,8 +12,16 @@ GL_MAJOR_VERSION :: 4
 GL_MINOR_VERSION :: 5
 window: glfw.WindowHandle
 
+WindowError :: enum {
+	None,
+	LoadError,
+	LoadWindowError,
+}
+
 main :: proc() {
-	initWindow()
+	err := initWindow() 
+	if err != .None do return
+
 	defer glfw.Terminate()
 	defer glfw.DestroyWindow(window)
 	glfw.SetFramebufferSizeCallback(window, framebuffer_size_callback)
@@ -27,21 +35,23 @@ main :: proc() {
 	}
 }
 
-initWindow :: proc() {
+initWindow :: proc() -> WindowError {
 	if !bool(glfw.Init()) {
 		fmt.eprintln("GLFW has failed to load.")
-		return 
+		return .LoadError
 	}
 	
 	window = glfw.CreateWindow(WIDTH, HEIGHT, TITLE, nil, nil)
 
 	if window == nil {
 		fmt.eprintln("GLFW has failed to load the window.")
-		return
+		return .LoadWindowError
 	}
 
 	glfw.MakeContextCurrent(window)
 	gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
+
+	return .None
 }
 
 processInput :: proc() {
