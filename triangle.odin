@@ -332,7 +332,7 @@ checkCompileErrors :: proc(obj: u32, type: string) {
 }
 
 // vertex shader
-vertex_shader_source: cstring = `#version 330 core
+vertex_shader_source: cstring = `#version 450 core
     layout (location = 0) in vec3 aPos;
     void main()
     {
