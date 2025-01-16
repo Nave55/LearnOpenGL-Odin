@@ -1,4 +1,4 @@
-package glfw_window
+package glfw_triangle
 
 import "core:fmt"
 import gl "vendor:OpenGL"
