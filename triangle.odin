@@ -32,23 +32,23 @@ main :: proc() {
 
 	// exercise one and base triangle
 
-	VAO, VBO := createTriangle()
+	// VAO, VBO := createTriangle()
 	// VAO, VBO := exerciseOne()
-	defer {
-		gl.DeleteVertexArrays(1, &VAO)
-		gl.DeleteBuffers(1, &VBO)
-		gl.DeleteProgram(shaderProgram)
-	}
-
-	// base rect
-
-	// VAO, VBO, EBO := createRect()
 	// defer {
 	// 	gl.DeleteVertexArrays(1, &VAO)
 	// 	gl.DeleteBuffers(1, &VBO)
-	// 	gl.DeleteBuffers(1, &EBO)
 	// 	gl.DeleteProgram(shaderProgram)
 	// }
+
+	// base rect
+
+	VAO, VBO, EBO := createRect()
+	defer {
+		gl.DeleteVertexArrays(1, &VAO)
+		gl.DeleteBuffers(1, &VBO)
+		gl.DeleteBuffers(1, &EBO)
+		gl.DeleteProgram(shaderProgram)
+	}
 
 	// exercise two
 
@@ -64,8 +64,8 @@ main :: proc() {
 		processInput() // check if pressed escape
 		gl.ClearColor(0.2, 0.3, 0.3, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
-		runProgram(VAO, VBO, "base") // base triangle
-		// runProgram(VAO, VBO, EBO) // base rect
+		// runProgram(VAO, VBO, "base") // base triangle
+		runProgram(VAO, VBO, EBO) // base rect
 		// runProgram(VAO, VBO, "one") // exercise one
 		// runProgram(VAOs[:], VBOs[:]) // exercise two
 		glfw.SwapBuffers(window)
@@ -286,6 +286,12 @@ runTriangle :: proc(VAO, VBO: u32, part: string) {
 		gl.DrawArrays(gl.TRIANGLES, 0, 6)
 	}
 }
+// runs rect program
+runRect :: proc(VAO, VBO, EBO: u32) {
+	gl.UseProgram(shaderProgram)
+	gl.BindVertexArray(VAO)
+	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, rawptr(uintptr(0)))
+}
 
 // runs exercise two 
 runExerciseTwo :: proc(VBOs, VAOs: []u32) {
@@ -296,13 +302,6 @@ runExerciseTwo :: proc(VBOs, VAOs: []u32) {
 	// then we draw the second triangle using the data from the second VAO
 	gl.BindVertexArray(VAOs[1])
 	gl.DrawArrays(gl.TRIANGLES, 0, 3)
-}
-
-// runs rect program
-runRect :: proc(VAO, VBO, EBO: u32) {
-	gl.UseProgram(shaderProgram)
-	gl.BindVertexArray(VAO)
-	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, rawptr(uintptr(0)))
 }
 
 // overload for all the run functions
