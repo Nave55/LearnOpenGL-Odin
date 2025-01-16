@@ -110,8 +110,7 @@ program :: proc(prog: u8) {
 	gl.CompileShader(vertexShader)
 	checkCompileErrors(vertexShader, "VERTEX")
 
-	fragmentShader: u32
-	fragmentShader = gl.CreateShader(gl.FRAGMENT_SHADER)
+	fragmentShader := gl.CreateShader(gl.FRAGMENT_SHADER)
 	gl.ShaderSource(
 		fragmentShader,
 		1,
@@ -334,9 +333,7 @@ checkCompileErrors :: proc(obj: u32, type: string) {
 
 // vertex shader
 vertex_shader_source: cstring = `#version 330 core
-
     layout (location = 0) in vec3 aPos;
-
     void main()
     {
        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
@@ -344,10 +341,8 @@ vertex_shader_source: cstring = `#version 330 core
 
 
 // orange fragment shader
-fragment_shader_source: cstring = `#version 330 core
-
+fragment_shader_source: cstring = `#version 450 core
     out vec4 FragColor;
-
     void main()
     {
        FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
@@ -355,10 +350,8 @@ fragment_shader_source: cstring = `#version 330 core
 
 
 // yellow fragment shader
-fragment_shader_source2: cstring = `#version 330 core
-
+fragment_shader_source2: cstring = `#version 450 core
     out vec4 FragColor;
-
     void main()
     {
        FragColor = vec4(1.0f, 0.984f, 0.0f, 1.0f);
