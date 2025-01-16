@@ -32,23 +32,23 @@ main :: proc() {
 
 	// exercise one and base triangle
 
-	// VAO, VBO := createTriangle()
+	VAO, VBO := createTriangle()
 	// VAO, VBO := exerciseOne()
-	// defer {
-	// 	gl.DeleteVertexArrays(1, &VAO)
-	// 	gl.DeleteBuffers(1, &VBO)
-	// 	gl.DeleteProgram(shaderProgram)
-	// }
-
-	// base rect
-
-	VAO, VBO, EBO := createRect()
 	defer {
 		gl.DeleteVertexArrays(1, &VAO)
 		gl.DeleteBuffers(1, &VBO)
-		gl.DeleteBuffers(1, &EBO)
 		gl.DeleteProgram(shaderProgram)
 	}
+
+	// base rect
+
+	// VAO, VBO, EBO := createRect()
+	// defer {
+	// 	gl.DeleteVertexArrays(1, &VAO)
+	// 	gl.DeleteBuffers(1, &VBO)
+	// 	gl.DeleteBuffers(1, &EBO)
+	// 	gl.DeleteProgram(shaderProgram)
+	// }
 
 	// exercise two
 
@@ -64,8 +64,8 @@ main :: proc() {
 		processInput() // check if pressed escape
 		gl.ClearColor(0.2, 0.3, 0.3, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
-		// runProgram(VAO, VBO, "base") // base triangle
-		runProgram(VAO, VBO, EBO) // base rect
+		runProgram(VAO, VBO, "base") // base triangle
+		// runProgram(VAO, VBO, EBO) // base rect
 		// runProgram(VAO, VBO, "one") // exercise one
 		// runProgram(VAOs[:], VBOs[:]) // exercise two
 		glfw.SwapBuffers(window)
@@ -135,9 +135,9 @@ createTriangle :: proc() -> (VBO, VAO: u32) {
 	vertices := [9]f32{-0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.0, 0.5, 0.0}
 
 	gl.GenVertexArrays(1, &VAO)
-	gl.GenBuffers(1, &VBO)
 	gl.BindVertexArray(VAO)
 
+	gl.GenBuffers(1, &VBO)
 	gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
 	gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices), raw_data(vertices[:]), gl.STATIC_DRAW)
 
@@ -157,10 +157,10 @@ createRect :: proc() -> (VBO, VAO, EBO: u32) {
 	indices := [6]u32{0, 1, 3, 1, 2, 3}
 
 	gl.GenVertexArrays(1, &VAO)
-	gl.GenBuffers(1, &VBO)
-	gl.GenBuffers(1, &EBO)
 	gl.BindVertexArray(VAO)
 
+	gl.GenBuffers(1, &VBO)
+	gl.GenBuffers(1, &EBO)
 	gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
 	gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices), raw_data(vertices[:]), gl.STATIC_DRAW)
 
@@ -203,9 +203,9 @@ exerciseOne :: proc() -> (VBO, VAO: u32) {
 	}
 
 	gl.GenVertexArrays(1, &VAO)
-	gl.GenBuffers(1, &VBO)
 	gl.BindVertexArray(VAO)
 
+	gl.GenBuffers(1, &VBO)
 	gl.BindBuffer(gl.ARRAY_BUFFER, VBO)
 	gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices), raw_data(vertices[:]), gl.STATIC_DRAW)
 
@@ -273,7 +273,7 @@ exerciseTwo :: proc() -> (VBOs, VAOs: [2]u32) {
 }
 
 // runs program if base triangle or exercise part one
-runBaseOne :: proc(VAO, VBO: u32, part: string) {
+runTriangle :: proc(VAO, VBO: u32, part: string) {
 	if part == "base" {
 		gl.UseProgram(shaderProgram)
 		gl.BindVertexArray(VAO)
@@ -307,7 +307,7 @@ runRect :: proc(VAO, VBO, EBO: u32) {
 
 // overload for all the run functions
 runProgram :: proc {
-	runBaseOne,
+	runTriangle,
 	runExerciseTwo,
 	runRect,
 }
