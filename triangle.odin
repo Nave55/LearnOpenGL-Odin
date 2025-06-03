@@ -49,7 +49,7 @@ main :: proc() {
 	defer glfw.DestroyWindow(window) // destroy window handle
 	glfw.SetFramebufferSizeCallback(window, framebuffer_size_callback) // for window resize
 	
-	runExercise(3, 'o')
+	runExercise(1, 'y')
 }
 
 // creates window
@@ -292,52 +292,45 @@ runProgram :: proc {
 
 runExercise :: proc($N: u8, color: rune) {
 	data: Data
+	vao, vbo, ebo: u32
+	vaos, vbos: [2]u32
 
 	if color == 'o' do program(1)
 	else if color == 'y' do program(2)
 
 	// exercise one and base triangle
 	when N == 0 || N == 1 {
-		when N == 0 {
-			vao, vbo := createTriangle()
-			data = Data0_1{vao, vbo}
-		}
-
-		when N == 1 {
-			vao, vbo := exerciseOne()
-			data = Data0_1{vao, vbo}
-		}
-
-		defer {
-			gl.DeleteVertexArrays(1, &vao)
-			gl.DeleteBuffers(1, &vbo)
-			gl.DeleteProgram(shaderProgram)
-		}
+		when N == 0 do vao, vbo = createTriangle()
+		when N == 1 do vao, vbo = exerciseOne()
+		data = Data0_1{vao, vbo}
 	}
 
 	// exercise two
 	when N == 2 {
-		vaos, vbos := exerciseTwo()
+		vaos, vbos = exerciseTwo()
 		data = Data2{vaos[:], vbos[:]}
-
-		defer {
-			gl.DeleteVertexArrays(2, raw_data(vaos[:]))
-			gl.DeleteBuffers(2, raw_data(vbos[:]))
-			gl.DeleteProgram(shaderProgram)
-		}
 	}
 
 	// base rect
 	when N == 3 {
-		vao, vbo, ebo := createRect()
+		vao, vbo, ebo = createRect()
 		data = Data3{vao, vbo, ebo}
-		
-		defer {
+	}
+
+	defer {
+		when N == 0 || N == 1 {
 			gl.DeleteVertexArrays(1, &vao)
 			gl.DeleteBuffers(1, &vbo)
-			gl.DeleteBuffers(1, &ebo)
-			gl.DeleteProgram(shaderProgram)
 		}
+
+		when N == 2 {
+			gl.DeleteVertexArrays(2, raw_data(vaos[:]))
+			gl.DeleteBuffers(2, raw_data(vbos[:]))
+		}
+
+		when N == 3 do gl.DeleteBuffers(1, &ebo)
+
+		gl.DeleteProgram(shaderProgram)
 	}
 
 	for !glfw.WindowShouldClose(window) {
