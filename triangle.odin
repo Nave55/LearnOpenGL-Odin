@@ -24,7 +24,6 @@ Data0_1 :: struct {
 	vbo: u32,
 }
 
-
 Data2 :: struct {
 	vaos: []u32,
 	vbos: []u32,
