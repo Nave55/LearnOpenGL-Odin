@@ -19,6 +19,29 @@ WindowError :: enum {
 	LoadWindowError,
 }
 
+Data0_1 :: struct {
+	vao: u32,
+	vbo: u32,
+}
+
+
+Data2 :: struct {
+	vaos: []u32,
+	vbos: []u32,
+}
+
+Data3 :: struct {
+	vao: u32,
+	vbo: u32,
+	ebo: u32,
+}
+
+Data :: union {
+	Data0_1,
+	Data2,
+	Data3,
+}
+
 main :: proc() {
 	err := initWindow() // create window handle
 	assert(err == .None) //  assert that there was no error in creating window handle
@@ -26,48 +49,68 @@ main :: proc() {
 	defer glfw.Terminate() // terminate glfw
 	defer glfw.DestroyWindow(window) // destroy window handle
 	glfw.SetFramebufferSizeCallback(window, framebuffer_size_callback) // for window resize
+	
+	runExercise(3, 'o')
+}
 
-	program(1) // orange fragment shader
-	// program(2) // yellow fragment shader
+runExercise :: proc($N: u8, color: rune) {
+	data: Data
+
+	if color == 'o' do program(1)
+	else if color == 'y' do program(2)
 
 	// exercise one and base triangle
+	when N == 0 || N == 1 {
+		when N == 0 {
+			vao, vbo := createTriangle()
+			data = Data0_1{vao, vbo}
+		}
 
-	// VAO, VBO := createTriangle()
-	// VAO, VBO := exerciseOne()
-	// defer {
-	// 	gl.DeleteVertexArrays(1, &VAO)
-	// 	gl.DeleteBuffers(1, &VBO)
-	// 	gl.DeleteProgram(shaderProgram)
-	// }
+		when N == 1 {
+			vao, vbo := exerciseOne()
+			data = Data0_1{vao, vbo}
+		}
 
-	// base rect
-
-	VAO, VBO, EBO := createRect()
-	defer {
-		gl.DeleteVertexArrays(1, &VAO)
-		gl.DeleteBuffers(1, &VBO)
-		gl.DeleteBuffers(1, &EBO)
-		gl.DeleteProgram(shaderProgram)
+		defer {
+			gl.DeleteVertexArrays(1, &vao)
+			gl.DeleteBuffers(1, &vbo)
+			gl.DeleteProgram(shaderProgram)
+		}
 	}
 
 	// exercise two
+	when N == 2 {
+		vaos, vbos := exerciseTwo()
+		data = Data2{vaos[:], vbos[:]}
 
-	// VAOs, VBOs := exerciseTwo()
-	// defer {
-	// 	gl.DeleteVertexArrays(2, raw_data(VAOs[:]))
-	// 	gl.DeleteBuffers(2, raw_data(VBOs[:]))
-	// 	gl.DeleteProgram(shaderProgram)
-	// }
+		defer {
+			gl.DeleteVertexArrays(2, raw_data(vaos[:]))
+			gl.DeleteBuffers(2, raw_data(vbos[:]))
+			gl.DeleteProgram(shaderProgram)
+		}
+	}
 
+	// base rect
+	when N == 3 {
+		vao, vbo, ebo := createRect()
+		data = Data3{vao, vbo, ebo}
+		
+		defer {
+			gl.DeleteVertexArrays(1, &vao)
+			gl.DeleteBuffers(1, &vbo)
+			gl.DeleteBuffers(1, &ebo)
+			gl.DeleteProgram(shaderProgram)
+		}
+	}
 
 	for !glfw.WindowShouldClose(window) {
 		processInput() // check if pressed escape
 		gl.ClearColor(0.2, 0.3, 0.3, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
-		// runProgram(VAO, VBO, "base") // base triangle
-		runProgram(VAO, VBO, EBO) // base rect
-		// runProgram(VAO, VBO, "one") // exercise one
-		// runProgram(VAOs[:], VBOs[:]) // exercise two
+		when N == 0 do runProgram(data.(Data0_1).vao, data.(Data0_1).vbo , "base") // base triangle
+		when N == 1 do runProgram(data.(Data0_1).vao, data.(Data0_1).vbo, "one") // exercise one
+		when N == 2 do runProgram(data.(Data2).vaos, data.(Data2).vbos) // exercise two
+		when N == 3 do runProgram(data.(Data3).vao, data.(Data3).vbo, data.(Data3).ebo) // base rect
 		glfw.SwapBuffers(window)
 		glfw.PollEvents()
 	}
@@ -338,7 +381,6 @@ vertex_shader_source: cstring = `#version 450 core
        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
     }`
 
-
 // orange fragment shader
 fragment_shader_source: cstring = `#version 450 core
     out vec4 FragColor;
@@ -346,7 +388,6 @@ fragment_shader_source: cstring = `#version 450 core
     {
        FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
     }`
-
 
 // yellow fragment shader
 fragment_shader_source2: cstring = `#version 450 core
