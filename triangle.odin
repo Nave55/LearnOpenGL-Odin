@@ -52,69 +52,6 @@ main :: proc() {
 	runExercise(3, 'o')
 }
 
-runExercise :: proc($N: u8, color: rune) {
-	data: Data
-
-	if color == 'o' do program(1)
-	else if color == 'y' do program(2)
-
-	// exercise one and base triangle
-	when N == 0 || N == 1 {
-		when N == 0 {
-			vao, vbo := createTriangle()
-			data = Data0_1{vao, vbo}
-		}
-
-		when N == 1 {
-			vao, vbo := exerciseOne()
-			data = Data0_1{vao, vbo}
-		}
-
-		defer {
-			gl.DeleteVertexArrays(1, &vao)
-			gl.DeleteBuffers(1, &vbo)
-			gl.DeleteProgram(shaderProgram)
-		}
-	}
-
-	// exercise two
-	when N == 2 {
-		vaos, vbos := exerciseTwo()
-		data = Data2{vaos[:], vbos[:]}
-
-		defer {
-			gl.DeleteVertexArrays(2, raw_data(vaos[:]))
-			gl.DeleteBuffers(2, raw_data(vbos[:]))
-			gl.DeleteProgram(shaderProgram)
-		}
-	}
-
-	// base rect
-	when N == 3 {
-		vao, vbo, ebo := createRect()
-		data = Data3{vao, vbo, ebo}
-		
-		defer {
-			gl.DeleteVertexArrays(1, &vao)
-			gl.DeleteBuffers(1, &vbo)
-			gl.DeleteBuffers(1, &ebo)
-			gl.DeleteProgram(shaderProgram)
-		}
-	}
-
-	for !glfw.WindowShouldClose(window) {
-		processInput() // check if pressed escape
-		gl.ClearColor(0.2, 0.3, 0.3, 1.0)
-		gl.Clear(gl.COLOR_BUFFER_BIT)
-		when N == 0 do runProgram(data.(Data0_1).vao, data.(Data0_1).vbo , "base") // base triangle
-		when N == 1 do runProgram(data.(Data0_1).vao, data.(Data0_1).vbo, "one") // exercise one
-		when N == 2 do runProgram(data.(Data2).vaos, data.(Data2).vbos) // exercise two
-		when N == 3 do runProgram(data.(Data3).vao, data.(Data3).vbo, data.(Data3).ebo) // base rect
-		glfw.SwapBuffers(window)
-		glfw.PollEvents()
-	}
-}
-
 // creates window
 initWindow :: proc() -> WindowError {
 	if !bool(glfw.Init()) {
@@ -351,6 +288,69 @@ runProgram :: proc {
 	runTriangle,
 	runExerciseTwo,
 	runRect,
+}
+
+runExercise :: proc($N: u8, color: rune) {
+	data: Data
+
+	if color == 'o' do program(1)
+	else if color == 'y' do program(2)
+
+	// exercise one and base triangle
+	when N == 0 || N == 1 {
+		when N == 0 {
+			vao, vbo := createTriangle()
+			data = Data0_1{vao, vbo}
+		}
+
+		when N == 1 {
+			vao, vbo := exerciseOne()
+			data = Data0_1{vao, vbo}
+		}
+
+		defer {
+			gl.DeleteVertexArrays(1, &vao)
+			gl.DeleteBuffers(1, &vbo)
+			gl.DeleteProgram(shaderProgram)
+		}
+	}
+
+	// exercise two
+	when N == 2 {
+		vaos, vbos := exerciseTwo()
+		data = Data2{vaos[:], vbos[:]}
+
+		defer {
+			gl.DeleteVertexArrays(2, raw_data(vaos[:]))
+			gl.DeleteBuffers(2, raw_data(vbos[:]))
+			gl.DeleteProgram(shaderProgram)
+		}
+	}
+
+	// base rect
+	when N == 3 {
+		vao, vbo, ebo := createRect()
+		data = Data3{vao, vbo, ebo}
+		
+		defer {
+			gl.DeleteVertexArrays(1, &vao)
+			gl.DeleteBuffers(1, &vbo)
+			gl.DeleteBuffers(1, &ebo)
+			gl.DeleteProgram(shaderProgram)
+		}
+	}
+
+	for !glfw.WindowShouldClose(window) {
+		processInput() // check if pressed escape
+		gl.ClearColor(0.2, 0.3, 0.3, 1.0)
+		gl.Clear(gl.COLOR_BUFFER_BIT)
+		when N == 0 do runProgram(data.(Data0_1).vao, data.(Data0_1).vbo , "base") // base triangle
+		when N == 1 do runProgram(data.(Data0_1).vao, data.(Data0_1).vbo, "one") // exercise one
+		when N == 2 do runProgram(data.(Data2).vaos, data.(Data2).vbos) // exercise two
+		when N == 3 do runProgram(data.(Data3).vao, data.(Data3).vbo, data.(Data3).ebo) // base rect
+		glfw.SwapBuffers(window)
+		glfw.PollEvents()
+	}
 }
 
 // checks for compile errors
