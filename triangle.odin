@@ -3,7 +3,8 @@ package glfw_triangle
 import "core:fmt"
 import gl "vendor:OpenGL"
 import "vendor:glfw"
-// import "core:math/linalg/glsl"
+import "core:os/os2"
+import "core:strings"
 
 WIDTH :: 800
 HEIGHT :: 600
@@ -42,14 +43,27 @@ Data :: union {
 }
 
 main :: proc() {
+	exer, clr := input()
+
 	err := initWindow() // create window handle
 	assert(err == .None) //  assert that there was no error in creating window handle
 
 	defer glfw.Terminate() // terminate glfw
 	defer glfw.DestroyWindow(window) // destroy window handle
 	glfw.SetFramebufferSizeCallback(window, framebuffer_size_callback) // for window resize
-	
-	runExercise(1, 'y')
+
+	runExercise(exer, clr)
+}
+
+input :: proc() -> (u8, rune) {
+	buf: [8]byte
+
+	fmt.printf("Enter Exercise Number and Color: ")
+	_, n_err := os2.read(os2.stdin, buf[:])
+	if n_err != nil do panic("Failed to Read")
+	input := (string(buf[:2]))
+
+	return input[0] - '0', rune(input[1])
 }
 
 // creates window
@@ -290,45 +304,45 @@ runProgram :: proc {
 	runRect,
 }
 
-runExercise :: proc($N: u8, color: rune) {
+runExercise :: proc(N: u8, C: rune) {
 	data: Data
 	vao, vbo, ebo: u32
 	vaos, vbos: [2]u32
 
-	if color == 'o' do program(1)
-	else if color == 'y' do program(2)
+	if C == 'o' do program(1)
+	if C == 'y' do program(2)
 
 	// exercise one and base triangle
-	when N == 0 || N == 1 {
-		when N == 0 do vao, vbo = createTriangle()
-		when N == 1 do vao, vbo = exerciseOne()
+	if N == 0 || N == 1 {
+		if N == 0 do vao, vbo = createTriangle()
+		if N == 1 do vao, vbo = exerciseOne()
 		data = Data0_1{vao, vbo}
 	}
 
 	// exercise two
-	when N == 2 {
+	if N == 2 {
 		vaos, vbos = exerciseTwo()
 		data = Data2{vaos[:], vbos[:]}
 	}
 
 	// base rect
-	when N == 3 {
+	if N == 3 {
 		vao, vbo, ebo = createRect()
 		data = Data3{vao, vbo, ebo}
 	}
 
 	defer {
-		when N == 0 || N == 1 {
+		if N == 0 || N == 1 {
 			gl.DeleteVertexArrays(1, &vao)
 			gl.DeleteBuffers(1, &vbo)
 		}
 
-		when N == 2 {
+		if N == 2 {
 			gl.DeleteVertexArrays(2, raw_data(vaos[:]))
 			gl.DeleteBuffers(2, raw_data(vbos[:]))
 		}
 
-		when N == 3 do gl.DeleteBuffers(1, &ebo)
+		if N == 3 do gl.DeleteBuffers(1, &ebo)
 
 		gl.DeleteProgram(shaderProgram)
 	}
@@ -337,10 +351,10 @@ runExercise :: proc($N: u8, color: rune) {
 		processInput() // check if pressed escape
 		gl.ClearColor(0.2, 0.3, 0.3, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT)
-		when N == 0 do runProgram(data.(Data0_1).vao, data.(Data0_1).vbo , "base") // base triangle
-		when N == 1 do runProgram(data.(Data0_1).vao, data.(Data0_1).vbo, "one") // exercise one
-		when N == 2 do runProgram(data.(Data2).vaos, data.(Data2).vbos) // exercise two
-		when N == 3 do runProgram(data.(Data3).vao, data.(Data3).vbo, data.(Data3).ebo) // base rect
+		if N == 0 do runProgram(data.(Data0_1).vao, data.(Data0_1).vbo , "base") // base triangle
+		if N == 1 do runProgram(data.(Data0_1).vao, data.(Data0_1).vbo, "one") // exercise one
+		if N == 2 do runProgram(data.(Data2).vaos, data.(Data2).vbos) // exercise two
+		if N == 3 do runProgram(data.(Data3).vao, data.(Data3).vbo, data.(Data3).ebo) // base rect
 		glfw.SwapBuffers(window)
 		glfw.PollEvents()
 	}
