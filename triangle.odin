@@ -1,5 +1,11 @@
 package glfw_triangle
 
+/*
+	To run an exercise type 1, 2, 3 then either 'o' or 'y'
+	ex - 2o
+	which will run exercise two with an orange frangment shader
+*/
+
 import "core:fmt"
 import gl "vendor:OpenGL"
 import "vendor:glfw"
