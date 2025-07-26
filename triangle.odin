@@ -1,7 +1,7 @@
 package glfw_triangle
 
 /*
-	To run an exercise type 1, 2, 3 then either 'o' or 'y'
+	To run an exercise type 0, 1, 2 or 3 then either 'o' or 'y'
 	ex - 2o
 	which will run exercise two with an orange frangment shader
 */
